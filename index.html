@@ -8,6 +8,7 @@
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#2e7d32">
     <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     
     <script src="https://unpkg.com/html5-qrcode"></script>
 
@@ -15,59 +16,77 @@
         :root { --primary: #2e7d32; --secondary: #1565c0; --bg: #f4f7f6; }
         body { font-family: -apple-system, sans-serif; background: var(--bg); margin: 0; padding: 10px; color: #333; }
         
-        .card { background: white; padding: 15px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 15px; }
-        h2 { margin: 0 0 10px 0; font-size: 1.1rem; color: var(--primary); }
+        .card { background: white; padding: 15px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 15px; border-top: 4px solid transparent; }
+        .card-id { border-top-color: var(--primary); }
+        h2 { margin: 0 0 10px 0; font-size: 1.1rem; color: var(--primary); font-weight: 700; text-transform: uppercase; }
         
         #reader { width: 100%; border-radius: 8px; overflow: hidden; background: #000; margin-bottom: 10px; }
         
-        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
-        .info-box { background: #e8f5e9; padding: 10px; border-radius: 8px; border-left: 4px solid var(--primary); }
-        .label-text { font-size: 0.7rem; color: #666; text-transform: uppercase; font-weight: bold; }
-        .value-text { display: block; font-size: 1rem; font-weight: bold; min-height: 1.2em; word-break: break-all; }
+        .parsing-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 15px; }
+        .parse-box { background: #fff; border: 1px solid #e0e0e0; padding: 8px; border-radius: 6px; }
+        .full-width { grid-column: span 2; background: #e8f5e9; border-color: var(--primary); }
 
-        label { display: block; margin: 10px 0 5px; font-weight: 600; }
+        .label-text { font-size: 0.65rem; color: #777; text-transform: uppercase; font-weight: bold; display: block; margin-bottom: 2px; }
+        .value-text { font-size: 0.95rem; font-weight: bold; color: #222; word-break: break-word; line-height: 1.2; }
+
+        label { display: block; margin: 10px 0 5px; font-weight: 600; font-size: 0.9rem; }
         input[type="number"] { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; box-sizing: border-box; }
         
-        /* Checkbox Styling */
-        .checkbox-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+        .checkbox-group { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
         .check-item { display: flex; align-items: center; background: #f9f9f9; padding: 10px; border-radius: 8px; border: 1px solid #eee; }
-        .check-item input { width: 20px; height: 20px; margin-right: 10px; accent-color: var(--primary); }
-        .check-item label { margin: 0; font-size: 0.9rem; cursor: pointer; }
+        .check-item input { width: 18px; height: 18px; margin-right: 10px; accent-color: var(--primary); }
+        .check-item label { margin: 0; font-size: 0.85rem; }
 
-        button { width: 100%; padding: 15px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: opacity 0.2s; }
-        .btn-scan { background: #333; color: white; margin-bottom: 10px; }
+        button { width: 100%; padding: 15px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: background 0.2s; font-size: 1rem; }
+        .btn-scan { background: #333; color: white; }
         .btn-save { background: var(--primary); color: white; margin-top: 15px; }
-        .btn-sync { background: var(--secondary); color: white; margin-top: 20px; }
+        .btn-sync { background: var(--secondary); color: white; margin-top: 10px; }
         
-        .status-footer { text-align: center; font-size: 0.8rem; color: #777; margin-top: 15px; }
-        .badge { background: #ff5252; color: white; padding: 2px 8px; border-radius: 10px; }
+        .status-footer { text-align: center; font-size: 0.8rem; color: #777; margin-top: 15px; padding-top: 10px; border-top: 1px solid #eee; }
+        .badge { background: #ff5252; color: white; padding: 2px 8px; border-radius: 10px; font-weight: bold; }
     </style>
 </head>
 <body>
 
     <div class="card">
-        <h2>1. Scanner</h2>
+        <h2>1. QR Scanner</h2>
         <div id="reader"></div>
         <button id="scanBtn" class="btn-scan" onclick="toggleScanner()">START CAMERA</button>
     </div>
 
-    <div class="card">
-        <h2>2. Tree Details</h2>
-        <div class="info-grid">
-            <div class="info-box">
-                <span class="label-text">Tree ID</span>
-                <span id="displayUid" class="value-text">---</span>
-            </div>
-            <div class="info-box">
-                <span class="label-text">Species</span>
+    <div class="card card-id">
+        <h2>2. Identification</h2>
+        <div class="parsing-grid">
+            <div class="parse-box full-width">
+                <span class="label-text">Species Name</span>
                 <span id="displaySpecies" class="value-text">---</span>
+            </div>
+            <div class="parse-box">
+                <span class="label-text">Range</span>
+                <span id="valRange" class="value-text">-</span>
+            </div>
+            <div class="parse-box">
+                <span class="label-text">Plot Code</span>
+                <span id="valPlot" class="value-text">-</span>
+            </div>
+            <div class="parse-box">
+                <span class="label-text">Block No</span>
+                <span id="valBlock" class="value-text">-</span>
+            </div>
+            <div class="parse-box">
+                <span class="label-text">Tree No</span>
+                <span id="valTreeNo" class="value-text">-</span>
+            </div>
+            <div class="parse-box full-width">
+                <span class="label-text">CPT / Clone</span>
+                <span id="valCpt" class="value-text">-</span>
             </div>
         </div>
 
-        <label>Height (M)</label>
+        <label>Height (Meters)</label>
         <input type="number" id="height" inputmode="decimal" placeholder="0.00">
 
-        <label>Girth (CM)</label>
+        <label>Girth (Centimeters)</label>
         <input type="number" id="girth" inputmode="decimal" placeholder="00.0">
 
         <label>Observations</label>
@@ -76,14 +95,16 @@
             <div class="check-item"><input type="checkbox" id="fruiting"><label for="fruiting">Fruiting</label></div>
             <div class="check-item"><input type="checkbox" id="disease"><label for="disease">Disease</label></div>
             <div class="check-item"><input type="checkbox" id="forking"><label for="forking">Forking</label></div>
-            <div class="check-item"><input type="checkbox" id="buttress" style="grid-column: span 2;"><label for="buttress">Buttress</label></div>
+            <div class="check-item" style="grid-column: span 2;"><input type="checkbox" id="buttress"><label for="buttress">Buttress Formation</label></div>
         </div>
 
-        <button class="btn-save" onclick="saveToPhone()">SAVE TO PHONE (OFFLINE)</button>
+        <button class="btn-save" onclick="saveToPhone()">SAVE LOCALLY</button>
     </div>
 
-    <div class="card" style="border-top: 4px solid var(--secondary);">
-        <div class="status-footer">Pending Sync: <span id="count" class="badge">0</span></div>
+    <div class="card">
+        <div class="status-footer">
+            Saved Offline: <span id="count" class="badge">0</span>
+        </div>
         <button class="btn-sync" onclick="syncToGoogle()">SYNC TO GOOGLE SHEETS</button>
     </div>
 
@@ -95,23 +116,35 @@
 
         function toggleScanner() {
             if (!html5QrCode) { html5QrCode = new Html5Qrcode("reader"); }
-            const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+            const config = { fps: 15, qrbox: { width: 250, height: 250 } };
             
             html5QrCode.start({ facingMode: "environment" }, config, (decodedText) => {
                 try {
-                    const url = new URL(decodedText);
-                    currentUid = url.searchParams.get("uid") || "Unknown";
-                    currentSpecies = url.searchParams.get("sp") || "Not Specified";
-                } catch(e) {
-                    currentUid = decodedText;
-                    currentSpecies = "Unknown";
-                }
+                    let rawId = decodedText;
+                    if (decodedText.includes('uid=')) {
+                        const url = new URL(decodedText);
+                        rawId = url.searchParams.get("uid");
+                    }
+                    currentUid = rawId;
 
-                document.getElementById('displayUid').innerText = currentUid;
-                document.getElementById('displaySpecies').innerText = currentSpecies;
-                html5QrCode.stop();
-                alert("Scanned: " + currentUid);
-            }).catch(err => { alert("Camera Error: " + err); });
+                    // SPLIT BY UNDERSCORE: Range_Plot_Block_Species_CPT_TreeNo
+                    const parts = currentUid.split('_');
+                    
+                    document.getElementById('valRange').innerText = parts[0] || "-";
+                    document.getElementById('valPlot').innerText  = parts[1] || "-";
+                    document.getElementById('valBlock').innerText = parts[2] || "-";
+                    document.getElementById('displaySpecies').innerText = parts[3] || "Unknown";
+                    document.getElementById('valCpt').innerText   = parts[4] || "-";
+                    document.getElementById('valTreeNo').innerText = parts[5] || "-";
+                    
+                    currentSpecies = parts[3] || "Unknown";
+                    
+                    html5QrCode.stop();
+                    alert("Scanned Tree No: " + (parts[5] || "Detected"));
+                } catch(e) {
+                    alert("Parsing Error. Ensure QR format is Range_Plot_Block_Species_CPT_TreeNo");
+                }
+            }).catch(err => { alert("Camera Error: Please check permissions."); });
         }
 
         function saveToPhone() {
@@ -119,7 +152,7 @@
             const g = document.getElementById('girth').value;
 
             if (!currentUid || !h || !g) {
-                alert("Please scan tree and enter height/girth!");
+                alert("Please scan a tree and enter measurements first.");
                 return;
             }
 
@@ -140,14 +173,13 @@
             storage.push(record);
             localStorage.setItem('treeData', JSON.stringify(storage));
 
-            // Reset UI
-            alert("Record Saved Locally!");
+            alert("Saved! Record stored in phone memory.");
+            
+            // UI Reset for next scan
             ["height", "girth"].forEach(id => document.getElementById(id).value = "");
             ["flowering", "fruiting", "disease", "forking", "buttress"].forEach(id => document.getElementById(id).checked = false);
-            document.getElementById('displayUid').innerText = "---";
-            document.getElementById('displaySpecies').innerText = "---";
+            ["displaySpecies", "valRange", "valPlot", "valBlock", "valTreeNo", "valCpt"].forEach(id => document.getElementById(id).innerText = "-");
             currentUid = ""; 
-            currentSpecies = "";
             updateCount();
         }
 
@@ -158,19 +190,21 @@
 
         async function syncToGoogle() {
             const storage = JSON.parse(localStorage.getItem('treeData') || "[]");
-            if (storage.length === 0) { alert("No data to sync."); return; }
-            if (!confirm(`Sync ${storage.length} records now?`)) return;
+            if (storage.length === 0) { alert("Nothing to sync."); return; }
+            if (!confirm(`Sync ${storage.length} records?`)) return;
 
             try {
-                await fetch(SCRIPT_URL, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    body: JSON.stringify(storage)
+                await fetch(SCRIPT_URL, { 
+                    method: 'POST', 
+                    mode: 'no-cors', 
+                    body: JSON.stringify(storage) 
                 });
-                alert("Sync Successful!");
+                alert("Upload Successful! Phone memory cleared.");
                 localStorage.setItem('treeData', "[]");
                 updateCount();
-            } catch (e) { alert("Sync failed. Check connection."); }
+            } catch (e) {
+                alert("Upload failed. Check your internet connection.");
+            }
         }
 
         if ('serviceWorker' in navigator) {
