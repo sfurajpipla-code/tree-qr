@@ -89,14 +89,15 @@
         <label>Girth (Centimeters)</label>
         <input type="number" id="girth" inputmode="decimal" placeholder="00.0">
 
-        <label>Observations</label>
-        <div class="checkbox-group">
-            <div class="check-item"><input type="checkbox" id="flowering"><label for="flowering">Flowering</label></div>
-            <div class="check-item"><input type="checkbox" id="fruiting"><label for="fruiting">Fruiting</label></div>
-            <div class="check-item"><input type="checkbox" id="disease"><label for="disease">Disease</label></div>
-            <div class="check-item"><input type="checkbox" id="forking"><label for="forking">Forking</label></div>
-            <div class="check-item" style="grid-column: span 2;"><input type="checkbox" id="buttress"><label for="buttress">Buttress Formation</label></div>
-        </div>
+    <label>Observations</label>
+<div class="checkbox-group">
+    <div class="check-item"><input type="checkbox" id="flowering"><label for="flowering">Flowering</label></div>
+    <div class="check-item"><input type="checkbox" id="fruiting"><label for="fruiting">Fruiting</label></div>
+    <div class="check-item"><input type="checkbox" id="termites"><label for="termites">Termites Present</label></div>
+    <div class="check-item"><input type="checkbox" id="disease"><label for="disease">Disease</label></div>
+    <div class="check-item"><input type="checkbox" id="forking"><label for="forking">Forking</label></div>
+    <div class="check-item"><input type="checkbox" id="buttress"><label for="buttress">Buttress</label></div>
+</div>
 
         <button class="btn-save" onclick="saveToPhone()">SAVE LOCALLY</button>
     </div>
@@ -147,41 +148,42 @@
             }).catch(err => { alert("Camera Error: Please check permissions."); });
         }
 
-        function saveToPhone() {
-            const h = document.getElementById('height').value;
-            const g = document.getElementById('girth').value;
+       function saveToPhone() {
+    const h = document.getElementById('height').value;
+    const g = document.getElementById('girth').value;
 
-            if (!currentUid || !h || !g) {
-                alert("Please scan a tree and enter measurements first.");
-                return;
-            }
+    if (!currentUid || !h || !g) {
+        alert("Please scan a tree and enter measurements first.");
+        return;
+    }
 
-            const record = {
-                uid: currentUid,
-                species: currentSpecies,
-                height: h,
-                girth: g,
-                flowering: document.getElementById('flowering').checked,
-                fruiting: document.getElementById('fruiting').checked,
-                disease: document.getElementById('disease').checked,
-                forking: document.getElementById('forking').checked,
-                buttress: document.getElementById('buttress').checked,
-                time: new Date().toLocaleString()
-            };
+    const record = {
+        uid: currentUid,
+        species: currentSpecies,
+        height: h,
+        girth: g,
+        flowering: document.getElementById('flowering').checked,
+        fruiting: document.getElementById('fruiting').checked,
+        termites: document.getElementById('termites').checked, // New Field
+        disease: document.getElementById('disease').checked,
+        forking: document.getElementById('forking').checked,
+        buttress: document.getElementById('buttress').checked,
+        time: new Date().toLocaleString()
+    };
 
-            let storage = JSON.parse(localStorage.getItem('treeData') || "[]");
-            storage.push(record);
-            localStorage.setItem('treeData', JSON.stringify(storage));
+    let storage = JSON.parse(localStorage.getItem('treeData') || "[]");
+    storage.push(record);
+    localStorage.setItem('treeData', JSON.stringify(storage));
 
-            alert("Saved! Record stored in phone memory.");
-            
-            // UI Reset for next scan
-            ["height", "girth"].forEach(id => document.getElementById(id).value = "");
-            ["flowering", "fruiting", "disease", "forking", "buttress"].forEach(id => document.getElementById(id).checked = false);
-            ["displaySpecies", "valRange", "valPlot", "valBlock", "valTreeNo", "valCpt"].forEach(id => document.getElementById(id).innerText = "-");
-            currentUid = ""; 
-            updateCount();
-        }
+    alert("Saved! Record stored in phone memory.");
+    
+    // UI Reset for next scan
+    ["height", "girth"].forEach(id => document.getElementById(id).value = "");
+    ["flowering", "fruiting", "termites", "disease", "forking", "buttress"].forEach(id => document.getElementById(id).checked = false);
+    ["displaySpecies", "valRange", "valPlot", "valBlock", "valTreeNo", "valCpt"].forEach(id => document.getElementById(id).innerText = "-");
+    currentUid = ""; 
+    updateCount();
+}
 
         function updateCount() {
             const storage = JSON.parse(localStorage.getItem('treeData') || "[]");
